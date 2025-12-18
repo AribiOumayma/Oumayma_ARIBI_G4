@@ -1,12 +1,14 @@
-// src/components/BottomNavigation.tsx
+// src/components/BottomNavigation.tsx - VÉRIFIÉ
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useCart } from '../contexts/CartContext';
 import { Session } from '../utils/session';
 
 export default function BottomNavigation() {
   const navigation = useNavigation<any>();
   const route = useRoute();
+  const { totalItems } = useCart();
 
   const isActive = (screenName: string) => {
     return route.name === screenName;
@@ -14,7 +16,6 @@ export default function BottomNavigation() {
 
   const handleLogout = () => {
     Session.logout();
-    // Rediriger vers Login
     navigation.reset({
       index: 0,
       routes: [{ name: 'Login' }],
@@ -47,9 +48,25 @@ export default function BottomNavigation() {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.menuItem}>
-        <Text style={styles.menuIcon}>🛒</Text>
-        <Text style={styles.menuText}>Cart</Text>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Cart')}
+        style={styles.menuItem}
+      >
+        <View style={styles.cartContainer}>
+          <Text style={[styles.menuIcon, isActive('Cart') && styles.menuItemActive]}>
+            🛒
+          </Text>
+          {totalItems > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {totalItems > 9 ? '9+' : totalItems}
+              </Text>
+            </View>
+          )}
+        </View>
+        <Text style={[styles.menuText, isActive('Cart') && styles.menuTextActive]}>
+          Cart
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -82,6 +99,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 10,
+    position: 'relative',
   },
   menuIcon: {
     fontSize: 22,
@@ -99,5 +117,24 @@ const styles = StyleSheet.create({
   menuTextActive: {
     color: '#00512C',
     fontWeight: '600',
+  },
+  cartContainer: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: '#FF4848',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });

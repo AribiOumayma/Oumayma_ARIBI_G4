@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import ScreenWithNavigation from '../templates/ScreenWithNavigation';
+import AppScreen from '../templates/AppScreen'; // CHANGÉ
 import ProductCard from '../components/ProductCard';
 import BackButton from '../components/BackButton';
 import { useFavorites } from '../contexts/FavoritesContext';
@@ -36,7 +36,7 @@ export default function FavoritesScreen() {
   );
 
   return (
-    <ScreenWithNavigation>
+    <AppScreen>
       {/* Header avec BackButton */}
       <View style={styles.header}>
         <BackButton />
@@ -63,6 +63,7 @@ export default function FavoritesScreen() {
             image={item.image}
             isFavorite={item.isFavorite}
             showFavoriteButton={true}
+            coffee={item}
           />
         )}
         keyExtractor={item => item.id}
@@ -75,15 +76,11 @@ export default function FavoritesScreen() {
         ListEmptyComponent={renderEmptyState}
         showsVerticalScrollIndicator={false}
       />
-    </ScreenWithNavigation>
+    </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FBFBFB',
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -98,7 +95,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   headerRight: {
-    width: 40, // Pour équilibrer avec le BackButton
+    width: 40,
   },
   countContainer: {
     paddingHorizontal: 20,

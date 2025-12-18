@@ -1,7 +1,9 @@
-// src/components/ProductCard.tsx
+// src/components/ProductCard.tsx - FIXED VERSION
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useFavorites } from '../contexts/FavoritesContext';
+import { useCart } from '../contexts/CartContext';
 
 const { width } = Dimensions.get('window');
 
@@ -14,6 +16,7 @@ interface Props {
   isFavorite: boolean;
   onAddPress?: () => void;
   showFavoriteButton?: boolean;
+  coffee: any;
 }
 
 export default function ProductCard({
@@ -24,17 +27,38 @@ export default function ProductCard({
   image,
   isFavorite: initialIsFavorite,
   onAddPress,
-  showFavoriteButton = true
+  showFavoriteButton = true,
+  coffee
 }: Props) {
+  const navigation = useNavigation<any>();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const favorite = isFavorite(id);
+  const { addToCart, getQuantity, isInCart } = useCart();
 
+  const favorite = isFavorite(id);
+  const inCart = isInCart(id);
+  const quantity = getQuantity(id);
+
+  // FIXED: Proper function declaration
   const handleFavoritePress = () => {
     toggleFavorite(id);
   };
 
+  const handleAddToCart = () => {
+    addToCart(coffee);
+  };
+
+  const handleProductPress = () => {
+    navigation.navigate('ProductDetail', {
+      product: coffee
+    });
+  };
+
   return (
-    <View style={styles.productCard}>
+    <TouchableOpacity
+      style={styles.productCard}
+      onPress={handleProductPress}
+      activeOpacity={0.9}
+    >
       <View style={styles.productImageContainer}>
         <Image source={{ uri: image }} style={styles.productImage} resizeMode="cover" />
         {showFavoriteButton && (
@@ -61,12 +85,20 @@ export default function ProductCard({
         </View>
       </View>
 
-      {onAddPress && (
-        <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
+      <TouchableOpacity
+        style={[styles.addButton, inCart && styles.addButtonActive]}
+        onPress={handleAddToCart}
+      >
+        {inCart ? (
+          <View style={styles.quantityContainer}>
+            <Text style={styles.quantityText}>{quantity}</Text>
+            <Text style={styles.plusMinusText}>+</Text>
+          </View>
+        ) : (
           <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+        )}
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 }
 
@@ -160,8 +192,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  addButtonActive: {
+    backgroundColor: '#0A3D2A',
+    width: 50,
+  },
   addButtonText: {
     fontSize: 20,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 8,
+  },
+  quantityText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    marginRight: 4,
+  },
+  plusMinusText: {
+    fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
   },

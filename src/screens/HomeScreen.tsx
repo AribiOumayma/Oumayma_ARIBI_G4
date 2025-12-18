@@ -10,7 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import ScreenWithNavigation from '../templates/ScreenWithNavigation';
+import AppScreen from '../templates/AppScreen'; // NOUVEAU NOM
 import CategoryItem from '../components/CategoryItem';
 import ProductCard from '../components/ProductCard';
 import { useFavorites } from '../contexts/FavoritesContext';
@@ -49,7 +49,7 @@ export default function HomeScreen() {
   }, [selectedCategory, searchQuery, coffees]);
 
   return (
-    <ScreenWithNavigation>
+    <AppScreen>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.locationContainer}>
@@ -84,24 +84,27 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Categories */}
-      <View style={styles.categoriesSection}>
-        <Text style={styles.sectionTitle}>Categories</Text>
-        <FlatList
-          data={categories}
-          renderItem={({ item }) => (
-            <CategoryItem
-              name={item}
-              icon="☕"
-              isActive={selectedCategory === item}
-              onPress={() => setSelectedCategory(item)}
-            />
-          )}
-          keyExtractor={item => item}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
+   {/* Categories */}
+   <View style={styles.categoriesSection}>
+     <Text style={styles.sectionTitle}>Categories</Text>
+
+     <FlatList
+       data={categories}
+       renderItem={({ item }) => (
+         <CategoryItem
+           name={item}
+           icon="☕"
+           isActive={selectedCategory === item}
+           onPress={() => setSelectedCategory(item)}
+         />
+       )}
+       keyExtractor={item => item}
+       horizontal
+       showsHorizontalScrollIndicator={false}
+       contentContainerStyle={styles.categoriesList}
+     />
+   </View>
+
 
       {/* Products */}
       <FlatList
@@ -115,6 +118,7 @@ export default function HomeScreen() {
             image={item.image}
             isFavorite={item.isFavorite}
             showFavoriteButton={true}
+            coffee={item}
           />
         )}
         keyExtractor={item => item.id}
@@ -135,15 +139,12 @@ export default function HomeScreen() {
         }
         showsVerticalScrollIndicator={false}
       />
-    </ScreenWithNavigation>
+    </AppScreen>
   );
 }
 
+// ⬇⬇⬇ VOICI LES STYLES QUI MANQUAIENT ⬇⬇⬇
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FBFBFB'
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -219,7 +220,12 @@ const styles = StyleSheet.create({
   },
   categoriesSection: {
     paddingHorizontal: 20,
-    marginTop: 25
+    marginTop: 25,
+    backgroundColor: 'transparent',
+  },
+  categoriesList: {
+    backgroundColor: 'transparent', // ✅ SUPPRIME LE CACHE BLANC
+    paddingVertical: 2,
   },
   sectionTitle: {
     fontSize: 14,
