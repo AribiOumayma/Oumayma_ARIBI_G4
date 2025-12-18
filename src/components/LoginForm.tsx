@@ -1,14 +1,14 @@
-// LoginForm.tsx
+// src/components/LoginForm.tsx
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, Alert } from 'react-native';
 import AppButton from './AppButton';
 import { useNavigation } from '@react-navigation/native';
-import { Session } from '../utils/session'; // Ajouter cette importation
+import { Session } from '../utils/session';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   // Utilisateur de test
   const testUser = {
@@ -16,11 +16,13 @@ export default function LoginForm() {
     password: 'password123'
   };
 
-  // Vérifier si l'utilisateur est déjà connecté au chargement
+  // Vérifier si l'utilisateur est déjà connecté
   useEffect(() => {
     if (Session.isLoggedIn()) {
-      // Rediriger directement vers Home si déjà connecté
-      navigation.navigate("Home");
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
     }
   }, []);
 
@@ -30,14 +32,17 @@ export default function LoginForm() {
       return;
     }
 
-    // Vérifier les identifiants
     if (email === testUser.email && password === testUser.password) {
       // Sauvegarder la session
       Session.login(email);
-      
-      console.log('Login successful!');
+
       Alert.alert('Success', 'Login successful!');
-      navigation.navigate("Home");
+
+      // Rediriger vers Home
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
     } else {
       Alert.alert('Login Failed', 'Invalid email or password. Use:\nEmail: test@example.com\nPassword: password123');
     }

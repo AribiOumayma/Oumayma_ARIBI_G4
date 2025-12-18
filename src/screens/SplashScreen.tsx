@@ -1,25 +1,27 @@
-// SplashScreen.tsx
+// src/screens/SplashScreen.tsx
 import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
-  TouchableOpacity,
   ImageBackground,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Session } from '../utils/session'; // Ajouter cette importation
+import AppButton from '../components/AppButton';
+import { Session } from '../utils/session';
 
 type Props = NativeStackScreenProps<any>;
 
 export default function SplashScreen({ navigation }: Props) {
   const handleGetStarted = () => {
-    // Vérifier l'état de connexion
     if (Session.isLoggedIn()) {
-      navigation.replace('Home');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
     } else {
-      navigation.replace('Login');
+      navigation.navigate('Login');
     }
   };
 
@@ -46,19 +48,17 @@ export default function SplashScreen({ navigation }: Props) {
           The best grain, the finest roast, the{'\n'}most powerful flavor.
         </Text>
 
-        <TouchableOpacity style={styles.button} onPress={handleGetStarted}>
+        <AppButton title="Get started" onPress={handleGetStarted}>
           <View style={styles.buttonDots}>
             <View style={styles.dot} />
             <View style={styles.dot} />
           </View>
-          <Text style={styles.buttonText}>Get started</Text>
-        </TouchableOpacity>
+        </AppButton>
       </View>
     </ImageBackground>
   );
 }
 
-// Les styles restent exactement les mêmes...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -99,20 +99,6 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     opacity: 0.95,
   },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0A3D2A',
-    paddingVertical: 18,
-    paddingHorizontal: 48,
-    borderRadius: 32,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 10,
-  },
   buttonDots: {
     flexDirection: 'row',
     marginRight: 14,
@@ -123,10 +109,5 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: '#FFFFFF',
     marginHorizontal: 3,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '700',
   },
 });

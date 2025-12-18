@@ -1,148 +1,67 @@
-import React, { useState } from 'react';
+// src/screens/HomeScreen.tsx
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-  Image,
   TextInput,
   FlatList,
+  TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
+import ScreenWithNavigation from '../templates/ScreenWithNavigation';
+import CategoryItem from '../components/CategoryItem';
+import ProductCard from '../components/ProductCard';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
-  const [selectedCategory, setSelectedCategory] = useState('Cappuccino');
-  
-  // Données des catégories
-  const categories = [
-    { id: '1', name: 'Cappuccino', icon: '☕' },
-    { id: '2', name: 'Coffee', icon: '☕' },
-    { id: '3', name: 'Expresso', icon: '☕' },
-    { id: '4', name: 'Cold Brew', icon: '☕' },
-  ];
-  
-  // Données des produits
-  const products = [
-    {
-      id: '1',
-      name: 'Cappuccino',
-      description: 'With Sugar',
-      price: '50.000',
-      image: 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg',
-      isFavorite: false,
-    },
-    {
-      id: '2',
-      name: 'Cappuccino',
-      description: 'With Sugar',
-      price: '50.000',
-      image: 'https://images.pexels.com/photos/2396220/pexels-photo-2396220.jpeg',
-      isFavorite: false,
-    },
-    {
-      id: '3',
-      name: 'Cappuccino',
-      description: 'With Sugar',
-      price: '50.000',
-      image: 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg',
-      isFavorite: false,
-    },
-    {
-      id: '4',
-      name: 'Coffee',
-      description: 'With Sugar',
-      price: '50.000',
-      image: 'https://images.pexels.com/photos/6347/coffee-cup-working-happy.jpg',
-      isFavorite: true,
-    },
-    {
-      id: '5',
-      name: 'Cappuccino',
-      description: 'With Sugar',
-      price: '50.000',
-      image: 'https://images.pexels.com/photos/2074122/pexels-photo-2074122.jpeg',
-      isFavorite: true,
-    },
-  ];
+  const { getAllCoffees, refreshFavorites } = useFavorites();
 
-  const renderCategoryItem = ({ item }: any) => (
-    <TouchableOpacity
-      style={[
-        styles.categoryItem,
-        selectedCategory === item.name && styles.categoryItemActive,
-      ]}
-      onPress={() => setSelectedCategory(item.name)}
-    >
-      <Text style={styles.categoryIcon}>{item.icon}</Text>
-      <Text
-        style={[
-          styles.categoryText,
-          selectedCategory === item.name && styles.categoryTextActive,
-        ]}
-      >
-        {item.name}
-      </Text>
-    </TouchableOpacity>
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [coffees, setCoffees] = useState(getAllCoffees());
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshFavorites();
+      setCoffees(getAllCoffees());
+    }, [])
   );
 
-  const renderProductItem = ({ item }: any) => (
-    <View style={styles.productCard}>
-      <View style={styles.productImageContainer}>
-        <Image
-          source={{ uri: item.image }}
-          style={styles.productImage}
-          resizeMode="cover"
-        />
-        {item.isFavorite && (
-          <View style={styles.favoriteBadge}>
-            <Text style={styles.heartIcon}>❤️</Text>
-          </View>
-        )}
-      </View>
-      
-      <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productDescription}>{item.description}</Text>
-        
-        <View style={styles.priceContainer}>
-          <Text style={styles.currency}>Rp</Text>
-          <Text style={styles.price}>{item.price}</Text>
-        </View>
-      </View>
-      
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  // Génère les catégories
+  const categories = useMemo(() => {
+    const unique = Array.from(new Set(coffees.map(c => c.category)));
+    return ['All', ...unique.sort()];
+  }, [coffees]);
 
-  const handleLogout = () => {
-    navigation.navigate('Login');
-  };
+  // Filtre les produits
+  const filteredCoffees = useMemo(() => {
+    return coffees.filter(coffee => {
+      const matchesCategory = selectedCategory === 'All' || coffee.category === selectedCategory;
+      const matchesSearch =
+        coffee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        coffee.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery, coffees]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* En-tête avec localisation et notification */}
+    <ScreenWithNavigation>
+      {/* Header */}
       <View style={styles.header}>
         <View style={styles.locationContainer}>
-          <View style={styles.locationIcon}>
-            <Text style={styles.markerIcon}>📍</Text>
-          </View>
+          <Text style={styles.markerIcon}>📍</Text>
           <Text style={styles.locationText}>Jakarta, Indonesia</Text>
         </View>
-        
-        <TouchableOpacity style={styles.notificationButton}>
+        <TouchableOpacity>
           <Text style={styles.bellIcon}>🔔</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Profil et salutation */}
+      {/* Profile */}
       <View style={styles.profileSection}>
         <View style={styles.profileImage}>
           <Text style={styles.profileInitial}>Y</Text>
@@ -150,110 +69,109 @@ export default function HomeScreen() {
         <Text style={styles.greeting}>Good morning, Yudi</Text>
       </View>
 
-      {/* Barre de recherche */}
+      {/* Search */}
       <View style={styles.searchContainer}>
-        <View style={styles.searchIcon}>
-          <Text style={styles.searchIconText}>🔍</Text>
-        </View>
+        <Text style={styles.searchIconText}>🔍</Text>
         <TextInput
           style={styles.searchInput}
           placeholder="Search Coffee ..."
           placeholderTextColor="#80A896"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
-        <TouchableOpacity style={styles.filterButton}>
+        <TouchableOpacity>
           <Text style={styles.filterIcon}>☰</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Catégories */}
+      {/* Categories */}
       <View style={styles.categoriesSection}>
         <Text style={styles.sectionTitle}>Categories</Text>
         <FlatList
           data={categories}
-          renderItem={renderCategoryItem}
-          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <CategoryItem
+              name={item}
+              icon="☕"
+              isActive={selectedCategory === item}
+              onPress={() => setSelectedCategory(item)}
+            />
+          )}
+          keyExtractor={item => item}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesList}
         />
       </View>
 
-      {/* Liste des produits */}
+      {/* Products */}
       <FlatList
-        data={products}
-        renderItem={renderProductItem}
-        keyExtractor={(item) => item.id}
+        data={filteredCoffees}
+        renderItem={({ item }) => (
+          <ProductCard
+            id={item.id}
+            name={item.name}
+            description={item.description}
+            price={item.price}
+            image={item.image}
+            isFavorite={item.isFavorite}
+            showFavoriteButton={true}
+          />
+        )}
+        keyExtractor={item => item.id}
         numColumns={2}
         columnWrapperStyle={styles.productsRow}
         contentContainerStyle={styles.productsContainer}
         ListHeaderComponent={
           <Text style={[styles.sectionTitle, styles.specialOfferTitle]}>
-            Special Offer
+            {selectedCategory === 'All' ? 'All Coffees' : selectedCategory}
           </Text>
+        }
+        ListEmptyComponent={
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <Text style={{ fontSize: 16, color: '#888' }}>
+              No coffee found 😔
+            </Text>
+          </View>
         }
         showsVerticalScrollIndicator={false}
       />
-
-      {/* Menu du bas */}
-      <View style={styles.bottomMenu}>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={[styles.menuIcon, styles.menuItemActive]}>🏠</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuIcon}>❤️</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuIcon}>🛒</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-          <Text style={styles.menuIcon}>👤</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    </ScreenWithNavigation>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FBFBFB',
+    backgroundColor: '#FBFBFB'
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 10
   },
   locationContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-  locationIcon: {
-    marginRight: 8,
+    alignItems: 'center'
   },
   markerIcon: {
     fontSize: 16,
+    marginRight: 8
   },
   locationText: {
     fontSize: 12,
-    fontFamily: 'Montserrat-Medium',
-    color: '#000000',
-  },
-  notificationButton: {
-    padding: 5,
+    fontWeight: '500',
+    color: '#000'
   },
   bellIcon: {
-    fontSize: 20,
+    fontSize: 20
   },
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginTop: 15,
+    marginTop: 15
   },
   profileImage: {
     width: 37,
@@ -262,17 +180,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#E3E6E8',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 12
   },
   profileInitial: {
     fontSize: 16,
-    fontFamily: 'Montserrat-SemiBold',
-    color: '#000000',
+    fontWeight: '600',
+    color: '#000'
   },
   greeting: {
     fontSize: 14,
-    fontFamily: 'Montserrat-SemiBold',
-    color: '#000000',
+    fontWeight: '600',
+    color: '#000'
   },
   searchContainer: {
     flexDirection: 'row',
@@ -282,191 +200,41 @@ const styles = StyleSheet.create({
     marginTop: 15,
     borderRadius: 30,
     paddingHorizontal: 15,
-    height: 51,
-  },
-  searchIcon: {
-    marginRight: 10,
+    height: 51
   },
   searchIconText: {
     fontSize: 16,
     color: '#80A896',
+    marginRight: 10
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
-    fontFamily: 'Montserrat-SemiBold',
-    color: '#80A896',
-  },
-  filterButton: {
-    padding: 5,
+    fontWeight: '600',
+    color: '#000'
   },
   filterIcon: {
     fontSize: 18,
-    color: '#03532B',
+    color: '#03532B'
   },
   categoriesSection: {
     paddingHorizontal: 20,
-    marginTop: 25,
+    marginTop: 25
   },
   sectionTitle: {
     fontSize: 14,
-    fontFamily: 'Montserrat-SemiBold',
-    color: '#000000',
-    marginBottom: 15,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 15
   },
-  categoriesList: {
-    paddingRight: 20,
-  },
-  categoryItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 30,
-    marginRight: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  categoryItemActive: {
-    backgroundColor: '#00582F',
-  },
-  categoryIcon: {
-    fontSize: 12,
-    marginRight: 6,
-    color: '#00582F',
-  },
-  categoryText: {
-    fontSize: 10,
-    fontFamily: 'Montserrat-SemiBold',
-    color: '#00582F',
-  },
-  categoryTextActive: {
-    color: '#FFFFFF',
+  specialOfferTitle: {
+    marginTop: 25
   },
   productsContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 100
   },
   productsRow: {
-    justifyContent: 'space-between',
-    marginBottom: 15,
-  },
-  specialOfferTitle: {
-    marginTop: 25,
-    marginBottom: 15,
-  },
-  productCard: {
-    width: (width - 50) / 2,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  productImageContainer: {
-    position: 'relative',
-    marginBottom: 10,
-  },
-  productImage: {
-    width: '100%',
-    height: 105,
-    borderRadius: 15,
-  },
-  favoriteBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: '#FF4848',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  heartIcon: {
-    fontSize: 12,
-    color: '#FFFFFF',
-  },
-  productInfo: {
-    marginBottom: 10,
-  },
-  productName: {
-    fontSize: 14,
-    fontFamily: 'Montserrat-SemiBold',
-    color: '#000000',
-    marginBottom: 2,
-  },
-  productDescription: {
-    fontSize: 10,
-    fontFamily: 'Montserrat-Regular',
-    color: '#000000',
-    marginBottom: 8,
-  },
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  currency: {
-    fontSize: 12,
-    fontFamily: 'Montserrat-SemiBold',
-    color: '#000000',
-    marginRight: 4,
-  },
-  price: {
-    fontSize: 18,
-    fontFamily: 'Montserrat-SemiBold',
-    color: '#000000',
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    backgroundColor: '#00512C',
-    width: 33,
-    height: 33,
-    borderRadius: 16.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  addButtonText: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  bottomMenu: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#FFFFFF',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  menuItem: {
-    alignItems: 'center',
-  },
-  menuIcon: {
-    fontSize: 22,
-    color: '#80A896',
-  },
-  menuItemActive: {
-    color: '#00512C',
+    justifyContent: 'space-between'
   },
 });

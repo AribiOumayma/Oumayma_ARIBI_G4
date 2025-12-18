@@ -1,23 +1,31 @@
+// src/navigation/AppNavigation.tsx
 import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
+import FavoritesScreen from '../screens/FavoritesScreen';
 import Bootsplash from "react-native-bootsplash";
 
-const PublicStack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator();
 
-export default function PublicNavigation() {
-
+export default function AppNavigation() {
   useEffect(() => {
-      Bootsplash.hide({ fade: true });
-    }, []);
+    Bootsplash.hide({ fade: true });
+  }, []);
 
   return (
-    <PublicStack.Navigator screenOptions={{ headerShown: false }}>
-      <PublicStack.Screen name="Login" component={LoginScreen} />
-      <PublicStack.Screen name="Home" component={HomeScreen} />
-    </PublicStack.Navigator>
+    <Stack.Navigator
+      initialRouteName="Splash"
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right'
+      }}
+    >
+      <Stack.Screen name="Splash" component={SplashScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Favorites" component={FavoritesScreen} />
+    </Stack.Navigator>
   );
 }
-export default AppNavigation;
