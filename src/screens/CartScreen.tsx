@@ -1,4 +1,4 @@
-// src/screens/CartScreen.tsx - VERSION AVEC APPSCREEN ET CHECKOUT EN BAS
+// src/screens/CartScreen.tsx
 import React from 'react';
 import {
   View,
@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import AppScreen from '../templates/AppScreen';
 import BackButton from '../components/BackButton';
 import { useCart } from '../contexts/CartContext';
+import { TrashIcon } from '../components/Icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -70,15 +71,15 @@ export default function CartScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={styles.removeButton}
-          onPress={() => removeFromCart(item.uniqueId)}
-        >
-          <Text style={styles.removeButtonText}>🗑️</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+         <TouchableOpacity
+                style={styles.removeButton}
+                onPress={() => removeFromCart(item.uniqueId)}
+              >
+                <TrashIcon size={20} />
+              </TouchableOpacity>
+            </View>
+          );
+        };
 
   const renderEmptyCart = () => {
     return (

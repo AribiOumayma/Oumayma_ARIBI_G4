@@ -10,10 +10,12 @@ import {
   Dimensions,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AppScreen from '../templates/AppScreen'; // NOUVEAU NOM
+import AppScreen from '../templates/AppScreen';
 import CategoryItem from '../components/CategoryItem';
 import ProductCard from '../components/ProductCard';
 import { useFavorites } from '../contexts/FavoritesContext';
+import { LocationIcon, BellIcon, SearchIcon, FilterIcon } from '../components/Icons'; // Icônes importées
+import { CoffeeIcon } from '../components/Icons';
 
 const { width } = Dimensions.get('window');
 
@@ -52,14 +54,14 @@ export default function HomeScreen() {
     <AppScreen>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.locationContainer}>
-          <Text style={styles.markerIcon}>📍</Text>
-          <Text style={styles.locationText}>Jakarta, Indonesia</Text>
-        </View>
-        <TouchableOpacity>
-          <Text style={styles.bellIcon}>🔔</Text>
-        </TouchableOpacity>
-      </View>
+              <View style={styles.locationContainer}>
+                <LocationIcon size={16} />
+                <Text style={styles.locationText}>Jakarta, Indonesia</Text>
+              </View>
+              <TouchableOpacity>
+                <BellIcon />
+              </TouchableOpacity>
+            </View>
 
       {/* Profile */}
       <View style={styles.profileSection}>
@@ -71,38 +73,38 @@ export default function HomeScreen() {
 
       {/* Search */}
       <View style={styles.searchContainer}>
-        <Text style={styles.searchIconText}>🔍</Text>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search Coffee ..."
-          placeholderTextColor="#80A896"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <TouchableOpacity>
-          <Text style={styles.filterIcon}>☰</Text>
-        </TouchableOpacity>
-      </View>
+              <SearchIcon />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search Coffee ..."
+                placeholderTextColor="#80A896"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+              <TouchableOpacity>
+                <FilterIcon />
+              </TouchableOpacity>
+            </View>
 
    {/* Categories */}
    <View style={styles.categoriesSection}>
      <Text style={styles.sectionTitle}>Categories</Text>
 
-     <FlatList
-       data={categories}
-       renderItem={({ item }) => (
-         <CategoryItem
-           name={item}
-           icon="☕"
-           isActive={selectedCategory === item}
-           onPress={() => setSelectedCategory(item)}
-         />
-       )}
-       keyExtractor={item => item}
-       horizontal
-       showsHorizontalScrollIndicator={false}
-       contentContainerStyle={styles.categoriesList}
-     />
+    <FlatList
+      data={categories}
+      renderItem={({ item }) => (
+        <CategoryItem
+          name={item}
+          icon={<CoffeeIcon isActive={selectedCategory === item} />}
+          isActive={selectedCategory === item}
+          onPress={() => setSelectedCategory(item)}
+        />
+      )}
+      keyExtractor={item => item}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.categoriesList}
+    />
    </View>
 
 

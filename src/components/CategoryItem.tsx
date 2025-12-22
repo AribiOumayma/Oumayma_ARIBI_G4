@@ -1,10 +1,10 @@
-//src/components/CategoryItem
+// src/components/CategoryItem.tsx
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 
 interface Props {
   name: string;
-  icon: string;
+  icon?: React.ReactNode;
   isActive: boolean;
   onPress: () => void;
 }
@@ -14,8 +14,10 @@ export default function CategoryItem({ name, icon, isActive, onPress }: Props) {
     <TouchableOpacity
       style={[styles.categoryItem, isActive && styles.categoryItemActive]}
       onPress={onPress}
+      activeOpacity={0.7}
     >
-      <Text style={styles.categoryIcon}>{icon}</Text>
+      {/* Icône directement rendue */}
+      {icon}
       <Text style={[styles.categoryText, isActive && styles.categoryTextActive]}>
         {name}
       </Text>
@@ -40,11 +42,6 @@ const styles = StyleSheet.create({
   },
   categoryItemActive: {
     backgroundColor: '#00582F',
-  },
-  categoryIcon: {
-    fontSize: 12,
-    marginRight: 6,
-    color: '#00582F',
   },
   categoryText: {
     fontSize: 10,

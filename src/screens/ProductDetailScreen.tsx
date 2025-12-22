@@ -1,4 +1,4 @@
-// src/screens/ProductDetailScreen.tsx (VERSION CORRIGÉE)
+// src/screens/ProductDetailScreen.tsx (VERSION CORRIGÉE COMPLÈTE)
 import React, { useState } from 'react';
 import {
   View,
@@ -13,6 +13,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomNavigation from '../components/BottomNavigation';
 import { useCart } from '../contexts/CartContext';
+import { BackIcon, HeartIcon, StarIcon } from '../components/Icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -45,7 +46,6 @@ export default function ProductDetailScreen() {
   const cupSizes: CupSize[] = ['Small', 'Medium', 'Large'];
   const sugarLevels: SugarLevel[] = ['No Sugar', 'Low', 'Medium'];
 
-  // Dans ProductDetailScreen.tsx
   const handleAddToCart = () => {
     const productWithOptions = {
       id: product.id,
@@ -65,15 +65,6 @@ export default function ProductDetailScreen() {
 
   const toggleFavorite = () => setIsFavorite(!isFavorite);
 
-  // Icônes en texte
-  const BackIcon = () => <Text style={styles.iconText}>←</Text>;
-  const HeartIcon = () => (
-    <Text style={[styles.heartIcon, isFavorite && styles.heartIconFilled]}>
-      {isFavorite ? '❤️' : '🤍'}
-    </Text>
-  );
-  const StarIcon = () => <Text style={styles.starIcon}>★</Text>;
-
   return (
     <View style={styles.container}>
       {/* Background Image */}
@@ -91,13 +82,13 @@ export default function ProductDetailScreen() {
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <View style={styles.backButtonCircle}>
-              <BackIcon />
+              <BackIcon size={26} color="#00582F" />
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.favoriteButton} onPress={toggleFavorite}>
             <View style={styles.favoriteButtonCircle}>
-              <HeartIcon />
+              <HeartIcon size={22} filled={isFavorite} color={isFavorite ? '#FF0000' : '#00582F'} />
             </View>
           </TouchableOpacity>
         </View>
@@ -110,7 +101,7 @@ export default function ProductDetailScreen() {
 
         {/* Rating badge positioned on the image */}
         <View style={styles.ratingBadge}>
-          <StarIcon />
+          <StarIcon color="#FFFFFF" />
           <Text style={styles.ratingText}>{product.rating}</Text>
         </View>
       </View>
@@ -262,17 +253,6 @@ const styles = StyleSheet.create({
     left: 348,
     top: 21,
   },
-  iconText: {
-    fontSize: 26,
-    color: '#00582F',
-    fontWeight: 'bold',
-  },
-  heartIcon: {
-    fontSize: 22,
-  },
-  heartIconFilled: {
-    color: '#FF0000',
-  },
   productInfoOnImage: {
     position: 'absolute',
     left: 30,
@@ -314,10 +294,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 10,
-  },
-  starIcon: {
-    fontSize: 14,
-    color: '#E2E2E2',
   },
   ratingText: {
     fontFamily: 'Montserrat',

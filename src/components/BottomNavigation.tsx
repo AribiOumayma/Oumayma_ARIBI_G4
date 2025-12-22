@@ -1,19 +1,20 @@
-// src/components/BottomNavigation.tsx - VÉRIFIÉ
+// src/components/BottomNavigation.tsx - AVEC ICÔNES PROFESSIONNELLES
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useCart } from '../contexts/CartContext';
 import { Session } from '../utils/session';
+import { HomeIcon, HeartIcon, CartIcon, PersonIcon } from './Icons'; // Icônes importées
 
 export default function BottomNavigation() {
   const navigation = useNavigation<any>();
   const route = useRoute();
   const { totalItems } = useCart();
-
+//Sert à colorer l’icône active
   const isActive = (screenName: string) => {
     return route.name === screenName;
   };
-
+//Déconnexion + redirection
   const handleLogout = () => {
     Session.logout();
     navigation.reset({
@@ -22,64 +23,51 @@ export default function BottomNavigation() {
     });
   };
 
+  const menuItems = [
+    { name: 'Home', screen: 'Home', icon: HomeIcon },
+    { name: 'Favorites', screen: 'Favorites', icon: HeartIcon },
+    { name: 'Cart', screen: 'Cart', icon: CartIcon },
+    { name: 'Logout', screen: 'Login', icon: PersonIcon, action: handleLogout },
+  ];
+
   return (
     <View style={styles.bottomMenu}>
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Home')}
-        style={styles.menuItem}
-      >
-        <Text style={[styles.menuIcon, isActive('Home') && styles.menuItemActive]}>
-          🏠
-        </Text>
-        <Text style={[styles.menuText, isActive('Home') && styles.menuTextActive]}>
-          Home
-        </Text>
-      </TouchableOpacity>
+      {menuItems.map((item, index) => {
+        const active = isActive(item.screen);
+        const IconComponent = item.icon;
 
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Favorites')}
-        style={styles.menuItem}
-      >
-        <Text style={[styles.menuIcon, isActive('Favorites') && styles.menuItemActive]}>
-          ❤️
-        </Text>
-        <Text style={[styles.menuText, isActive('Favorites') && styles.menuTextActive]}>
-          Favorites
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Cart')}
-        style={styles.menuItem}
-      >
-        <View style={styles.cartContainer}>
-          <Text style={[styles.menuIcon, isActive('Cart') && styles.menuItemActive]}>
-            🛒
-          </Text>
-          {totalItems > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {totalItems > 9 ? '9+' : totalItems}
-              </Text>
-            </View>
-          )}
-        </View>
-        <Text style={[styles.menuText, isActive('Cart') && styles.menuTextActive]}>
-          Cart
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={handleLogout}
-        style={styles.menuItem}
-      >
-        <Text style={styles.menuIcon}>👤</Text>
-        <Text style={styles.menuText}>Logout</Text>
-      </TouchableOpacity>
+        return (
+          <TouchableOpacity
+            key={index}
+            onPress={item.action || (() => navigation.navigate(item.screen))}
+            style={styles.menuItem}
+            activeOpacity={0.7}
+          >
+            {item.name === 'Cart' ? (
+              <View style={styles.cartContainer}>
+                <IconComponent size={22} isActive={active} />
+                {totalItems > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>
+                      {totalItems > 9 ? '9+' : totalItems}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <IconComponent size={22} isActive={active} />
+            )}
+            <Text style={[styles.menuText, active && styles.menuTextActive]}>
+              {item.name}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
 
+// Les styles restent identiques...
 const styles = StyleSheet.create({
   bottomMenu: {
     backgroundColor: '#FFFFFF',
@@ -101,18 +89,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     position: 'relative',
   },
-  menuIcon: {
-    fontSize: 22,
-    color: '#80A896',
-    marginBottom: 4,
-  },
   menuText: {
     fontSize: 11,
     color: '#80A896',
     fontWeight: '500',
-  },
-  menuItemActive: {
-    color: '#00512C',
+    marginTop: 4,
   },
   menuTextActive: {
     color: '#00512C',

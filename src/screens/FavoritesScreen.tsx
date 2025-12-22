@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AppScreen from '../templates/AppScreen'; // CHANGÉ
+import AppScreen from '../templates/AppScreen';
 import ProductCard from '../components/ProductCard';
 import BackButton from '../components/BackButton';
 import { useFavorites } from '../contexts/FavoritesContext';
